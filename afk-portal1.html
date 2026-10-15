@@ -1,0 +1,421 @@
+<html>
+<head>
+    <title>AFK Secure IT Portal</title>
+    
+    <style>
+        body { background-color: #e2e8f0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        .top-banner { background-color: #1a202c; color: #a0aec0; text-align: center; font-size: 12px; padding: 6px; letter-spacing: 1px; text-transform: uppercase; }
+        header { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; text-align: center; padding: 25px; border-bottom: 4px solid #f6ad55; box-shadow: 0px 5px 15px rgba(0,0,0,0.3); }
+        header img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #f6ad55; box-shadow: 0 0 15px rgba(246, 173, 85, 0.5); }
+        header h1 { margin: 10px 0 5px 0; font-size: 28px; letter-spacing: 1.5px; }
+        header span { color: #fbd38d; font-weight: bold; }
+        .navbar { background-color: #2d3748; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #276749; }
+        .nav-status { color: white; font-size: 14px; letter-spacing: 1px; }
+        .nav-buttons button { margin-left: 10px; padding: 8px 15px; font-size: 13px; border-radius: 4px; cursor: pointer; border: none; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
+        .btn-home { background-color: #4a5568; color: white; }
+        .btn-home:hover { background-color: #2d3748; }
+        .btn-logout { background-color: #e53e3e; color: white; }
+        .btn-logout:hover { background-color: #c53030; }
+        
+        .card { background-color: white; width: 85%; margin: 20px auto; padding: 25px; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); border-top: 5px solid #2c5364; }
+        .card h2 { color: #2c5364; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; }
+        
+        input[type="text"], input[type="number"], input[type="password"], select { width: 100%; padding: 12px; margin: 8px 0 20px 0; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc; font-size: 15px; transition: 0.3s; }
+        input:focus, select:focus { border: 1px solid #3182ce; outline: none; background-color: #fff; box-shadow: 0 0 5px rgba(49, 130, 206, 0.3); }
+        input[readonly] { background-color: #e2e8f0; color: #4a5568; font-weight: bold; cursor: not-allowed; border: 1px solid #a0aec0; }
+        
+        .btn-main { color: white; padding: 12px 25px; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; text-transform: uppercase; transition: 0.3s; }
+        .btn-green { background-color: #276749; }
+        .btn-green:hover { background-color: #22543d; box-shadow: 0px 4px 8px rgba(0,0,0,0.2); }
+        .btn-blue { background-color: #3182ce; }
+        .btn-blue:hover { background-color: #2b6cb0; box-shadow: 0px 4px 8px rgba(0,0,0,0.2); }
+        .btn-login { background-color: #2b6cb0; }
+        .btn-login:hover { background-color: #2c5282; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #2c5364; color: white; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; }
+        tr:hover { background-color: #edf2f7; }
+        
+        .alert-box { background-color: #fffaf0; border-left: 5px solid #dd6b20; padding: 15px; margin-bottom: 20px; }
+        footer { background-color: #1a202c; color: #a0aec0; text-align: center; padding: 20px; margin-top: 40px; font-size: 13px; border-top: 3px solid #f6ad55; }
+        footer span { color: #fbd38d; font-weight: bold; }
+        .warning-text { color: #e53e3e; font-size: 12px; margin-top: 5px; }
+        #error-msg { color: red; font-weight: bold; display: none; text-align: center; margin-bottom: 15px; }
+
+        .btn-action { padding: 6px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; color: white; margin-right: 5px; margin-bottom: 5px;}
+        .btn-block { background-color: #dd6b20; } 
+        .btn-active { background-color: #38a169; } 
+        .btn-del { background-color: #e53e3e; } 
+        .btn-edit { background-color: #3182ce; } 
+    </style>
+
+    <script>
+        let apprenticeData = JSON.parse(localStorage.getItem("afkRecords")) || [
+            { name: "Mayur Kumbhar", roll: "4012", dept: "IT Cell (ITC)", pass: "afk2026", status: "Active" }
+        ];
+        
+        let currentUserRole = ""; 
+        let currentUserId = ""; 
+
+        // 1. AUTO GENERATE LOGIC (Sirf Creation Module ke liye)
+        function getNextRoll() {
+            let maxRoll = 4011; 
+            apprenticeData.forEach(function(user) {
+                let currentRoll = parseInt(user.roll);
+                if (!isNaN(currentRoll) && currentRoll > maxRoll) {
+                    maxRoll = currentRoll;
+                }
+            });
+            return maxRoll + 1; 
+        }
+
+        // 2. LOGIN SYSTEM
+        function checkLogin(event) {
+            event.preventDefault(); 
+            var enteredId = document.getElementById("loginId").value;
+            var enteredPass = document.getElementById("loginPass").value;
+            
+            if(enteredId.toLowerCase() === "admin" && enteredPass === "admin2026") {
+                currentUserRole = "admin";
+                currentUserId = "admin"; 
+                openDashboard("Super Admin");
+                return;
+            }
+
+            let foundUser = apprenticeData.find(u => u.roll === enteredId && u.pass === enteredPass);
+            
+            if(foundUser) {
+                if(foundUser.status === "Blocked") {
+                    document.getElementById("error-msg").innerHTML = "🚫 Account is Blocked by Admin!";
+                    document.getElementById("error-msg").style.display = "block";
+                    return; 
+                }
+                
+                if(foundUser.dept === "Admin / HRD") {
+                    currentUserRole = "admin";
+                } else {
+                    currentUserRole = "employee";
+                }
+                
+                currentUserId = foundUser.roll; 
+                openDashboard(foundUser.name);
+            } else {
+                document.getElementById("error-msg").innerHTML = "⚠️ Invalid User ID or Password!";
+                document.getElementById("error-msg").style.display = "block";
+            }
+        }
+
+        function openDashboard(userName) {
+            document.getElementById("loginArea").style.display = "none";
+            document.getElementById("dashboardArea").style.display = "block";
+            document.getElementById("error-msg").style.display = "none";
+            
+            alert("Welcome to AFK Portal, " + userName + "!");
+
+            if(currentUserRole === "admin") {
+                // Admin ko dono modules dikhenge
+                document.getElementById("createModule").style.display = "block";
+                document.getElementById("updateModule").style.display = "block";
+                resetCreateForm(); 
+                refreshUpdateDropdown();
+            } else {
+                document.getElementById("createModule").style.display = "none";
+                document.getElementById("updateModule").style.display = "none";
+            }
+            
+            loadRecords(); 
+        }
+
+        function logoutSystem() {
+            currentUserRole = ""; 
+            currentUserId = ""; 
+            document.getElementById("dashboardArea").style.display = "none";
+            document.getElementById("loginArea").style.display = "block";
+            document.getElementById("loginId").value = "";
+            document.getElementById("loginPass").value = "";
+        }
+
+        // ================= NAYA: MODULE 1 (CREATION) =================
+        function resetCreateForm() {
+            document.getElementById("addName").value = "";
+            document.getElementById("addDept").value = "IT Cell (ITC)";
+            document.getElementById("addPass").value = "";
+            document.getElementById("addRoll").value = getNextRoll(); // Next roll idhar lock rahega
+        }
+
+        function saveNewRecord(event) {
+            event.preventDefault(); 
+            let empName = document.getElementById("addName").value;
+            let empRoll = document.getElementById("addRoll").value; 
+            let empDept = document.getElementById("addDept").value;
+            let empPass = document.getElementById("addPass").value; 
+
+            if(empName === "" || empPass === "") {
+                alert("⚠️ Error: Name aur Password bharna zaroori hai!");
+                return;
+            }
+
+            let newEntry = { name: empName, roll: empRoll, dept: empDept, pass: empPass, status: "Active" };
+            apprenticeData.push(newEntry); 
+            
+            localStorage.setItem("afkRecords", JSON.stringify(apprenticeData));
+            
+            alert("✅ New Record Created Successfully!");
+            loadRecords();
+            resetCreateForm(); // Wapas naya form ready kar do
+            refreshUpdateDropdown(); // Update list me bhi naya naam daal do
+        }
+
+        // ================= NAYA: MODULE 2 (UPDATE) =================
+        // Update module ke dropdown me saare users ki list bharna
+        function refreshUpdateDropdown() {
+            let select = document.getElementById("selectUpdateRoll");
+            select.innerHTML = '<option value="">-- Select an Employee to Edit --</option>';
+            
+            apprenticeData.forEach(user => {
+                select.innerHTML += `<option value="${user.roll}">${user.roll} - ${user.name}</option>`;
+            });
+        }
+
+        // Jab admin dropdown se kisi ko select kare toh uska purana data form me bhar jaye
+        function fillUpdateForm() {
+            let selectedRoll = document.getElementById("selectUpdateRoll").value;
+            
+            // Agar "-- Select --" chuna hai toh form khali kardo
+            if(selectedRoll === "") {
+                document.getElementById("updName").value = "";
+                document.getElementById("updDept").value = "";
+                document.getElementById("updPass").value = "";
+                return;
+            }
+            
+            let user = apprenticeData.find(u => u.roll === selectedRoll);
+            if(user) {
+                document.getElementById("updName").value = user.name;
+                document.getElementById("updDept").value = user.dept;
+                document.getElementById("updPass").value = user.pass;
+            }
+        }
+
+        // Purane data ko overwrite karna
+        function saveUpdatedRecord(event) {
+            event.preventDefault();
+            let selectedRoll = document.getElementById("selectUpdateRoll").value;
+            
+            if(selectedRoll === "") {
+                alert("⚠️ Please select an employee from the dropdown first!");
+                return;
+            }
+
+            let empName = document.getElementById("updName").value;
+            let empDept = document.getElementById("updDept").value;
+            let empPass = document.getElementById("updPass").value;
+
+            if(empName === "" || empPass === "") {
+                alert("⚠️ Name aur Password khali nahi chhod sakte!");
+                return;
+            }
+
+            let user = apprenticeData.find(u => u.roll === selectedRoll);
+            if(user) {
+                user.name = empName;
+                user.dept = empDept;
+                user.pass = empPass;
+                
+                localStorage.setItem("afkRecords", JSON.stringify(apprenticeData));
+                alert("✅ Record & Password Updated Successfully!");
+                loadRecords();
+                refreshUpdateDropdown(); // List taazi (refresh) karo
+                
+                // Form khali kardo update hone ke baad
+                document.getElementById("selectUpdateRoll").value = "";
+                fillUpdateForm(); 
+            }
+        }
+
+        // ================= ADMIN ACTIONS (BLOCK/DELETE) =================
+        function toggleStatus(roll) {
+            let user = apprenticeData.find(u => u.roll === roll);
+            if(user) {
+                user.status = (user.status === "Active") ? "Blocked" : "Active";
+                localStorage.setItem("afkRecords", JSON.stringify(apprenticeData));
+                loadRecords(); 
+            }
+        }
+
+        function deleteRecord(roll) {
+            let confirmDelete = confirm("⚠️ WARNING: Are you sure you want to delete Roll No " + roll + "?");
+            if(confirmDelete) {
+                apprenticeData = apprenticeData.filter(u => u.roll !== roll);
+                localStorage.setItem("afkRecords", JSON.stringify(apprenticeData));
+                loadRecords();
+                resetCreateForm(); // Create form me naya roll number thik karne ke liye
+                refreshUpdateDropdown(); // Dropdown se usko hatane ke liye
+            }
+        }
+
+        // Table wale Edit button ko click karne par seedha Update module me jump karega
+        function jumpToUpdate(roll) {
+            document.getElementById("selectUpdateRoll").value = roll;
+            fillUpdateForm(); // Data bhar do
+            window.scrollTo({ top: document.getElementById("updateModule").offsetTop, behavior: 'smooth' }); // Smooth scroll karke wahan le jao
+        }
+
+        // ================= TABLE LOADING =================
+        function loadRecords() {
+            let tableHead = document.getElementById("recordTableHead");
+            let tableBody = document.getElementById("recordTableBody");
+            
+            if(currentUserRole === "admin") {
+                tableHead.innerHTML = "<tr><th>Roll No</th><th>Name</th><th>Department</th><th>Status</th><th>Admin Actions</th></tr>";
+            } else {
+                tableHead.innerHTML = "<tr><th>Roll No</th><th>Name</th><th>Department</th><th>Status</th></tr>";
+            }
+
+            tableBody.innerHTML = ""; 
+            
+            apprenticeData.forEach(function(record) {
+                let statusColor = record.status === "Active" ? "green" : "red";
+                let actionButtons = "";
+                
+                if(currentUserRole === "admin") {
+                    let btnHTML = record.status === "Active" 
+                        ? `<button class="btn-action btn-block" onclick="toggleStatus('${record.roll}')">Block</button>`
+                        : `<button class="btn-action btn-active" onclick="toggleStatus('${record.roll}')">Activate</button>`;
+                    
+                    actionButtons = `<td>
+                        <button class="btn-action btn-edit" onclick="jumpToUpdate('${record.roll}')">Edit</button>
+                        ${btnHTML}
+                        <button class="btn-action btn-del" onclick="deleteRecord('${record.roll}')">Delete</button>
+                    </td>`;
+                }
+
+                let newRow = `<tr>
+                    <td>${record.roll}</td>
+                    <td>${record.name}</td>
+                    <td>${record.dept}</td>
+                    <td style="color: ${statusColor}; font-weight: bold;">${record.status}</td>
+                    ${actionButtons}
+                </tr>`;
+                
+                tableBody.innerHTML += newRow;
+            });
+        }
+    </script>
+</head>
+<body>
+
+    <div class="top-banner">🔒 Official Portal of Ammunition Factory Khadki - Restricted Access</div>
+
+    <header>
+        <img src="Ammunition-Factory-Khadki.jpeg" alt="AFK Logo"> 
+        <h1>Ammunition Factory Khadki (AFK)</h1>
+        <p>Welcome to the <span>Information Technology Cell</span></p>
+    </header>
+
+    <div id="loginArea">
+        <div class="card" style="border-top: 5px solid #2b6cb0; max-width: 400px;">
+            <h2 style="text-align: center;">🔐 Secure Portal Login</h2>
+            <p id="error-msg">⚠️ Invalid User ID or Password!</p>
+            <form>
+                <label>User ID (Roll No / Admin):</label>
+                <input type="text" id="loginId" placeholder="Enter ID (e.g., admin or 4012)">
+                <label>Password:</label>
+                <input type="password" id="loginPass" placeholder="Enter Password">
+                <button type="submit" class="btn-main btn-login" onclick="checkLogin(event)">Login to System</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboardArea" style="display: none;">
+        
+        <div class="navbar">
+            <div class="nav-status">Status: <span style="color: #48bb78; font-weight: bold;">🟢 System Online</span></div>
+            <div class="nav-buttons">
+                <button class="btn-home" onclick="resetCreateForm(); document.getElementById('selectUpdateRoll').value = ''; fillUpdateForm();">Dashboard Home</button>
+                <button class="btn-logout" onclick="logoutSystem()">Logout</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📌 Important Notice</h2>
+            <div class="alert-box">
+                <strong>Joining Instructions for 9th Oct:</strong>
+                <ul>
+                    <li>Report at Main Gate at 8:00 AM strictly.</li>
+                    <li>Bring NATS 2.0 Credentials, Aadhaar, PAN & Passbook.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- MODULE 1: CREATION MODULE (Green Theme) -->
+        <div class="card" id="createModule" style="border-top: 5px solid #276749;">
+            <h2>➕ Add New Apprentice (Create ID)</h2>
+            <form>
+                <label>Auto-Generated Roll Number (Locked):</label>
+                <input type="text" id="addRoll" readonly title="System controls this automatically">
+                
+                <label>Full Name:</label>
+                <input type="text" id="addName" placeholder="Enter full name">
+                
+                <label>Allotted Department:</label>
+                <select id="addDept">
+                    <option value="IT Cell (ITC)">IT Cell (ITC)</option>
+                    <option value="Production (Fuses)">Production (Fuses)</option>
+                    <option value="Admin / HRD">Admin / HRD</option>
+                </select>
+                
+                <label>Set Initial Password:</label>
+                <input type="text" id="addPass" placeholder="Set password for new user">
+                
+                <button type="button" class="btn-main btn-green" onclick="saveNewRecord(event)">Create & Save Record</button>
+            </form>
+        </div>
+
+        <!-- MODULE 2: UPDATE MODULE (Blue Theme) -->
+        <div class="card" id="updateModule" style="border-top: 5px solid #3182ce;">
+            <h2>✏️ Update Existing Record & Password</h2>
+            <form>
+                <label>Select User to Update:</label>
+                <!-- Jab yahan se naam select hoga, fillUpdateForm() chalega aur niche data bhar dega -->
+                <select id="selectUpdateRoll" onchange="fillUpdateForm()">
+                    <!-- JavaScript automatically yahan options add karega -->
+                </select>
+                
+                <label>Full Name:</label>
+                <input type="text" id="updName" placeholder="Update name">
+                
+                <label>Department:</label>
+                <select id="updDept">
+                    <option value="IT Cell (ITC)">IT Cell (ITC)</option>
+                    <option value="Production (Fuses)">Production (Fuses)</option>
+                    <option value="Admin / HRD">Admin / HRD</option>
+                </select>
+                
+                <label>Update Login Password:</label>
+                <input type="text" id="updPass" placeholder="Type new password">
+                
+                <button type="button" class="btn-main btn-blue" onclick="saveUpdatedRecord(event)">Update Record</button>
+            </form>
+        </div>
+
+        <!-- TABLE MODULE -->
+        <div class="card">
+            <h2>📁 Current Active Records</h2>
+            <table>
+                <thead id="recordTableHead">
+                </thead>
+                <tbody id="recordTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <p>Copyright © 2026 | Designed & Developed by <span>Mayur (ITC Graduate Apprentice)</span></p>
+        <p class="warning-text">⚠️ RESTRICTED AREA: Strictly for Internal AFK Use Only.</p>
+    </footer>
+
+</body>
+</html>
